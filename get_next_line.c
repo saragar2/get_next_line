@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/10/25 21:35:07 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/10/28 18:05:47 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,21 +38,14 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 
 char *get_next_line(int fd)
 {
-	char					buf[BUFFER_SIZE];
-	static unsigned long	i;
-	char					*aux;
+	static char	*buf;
+	int			i;
+	char		*aux;
 
 	i = 0;
-	read(fd, buf, sizeof(buf) + i);
-	// ------CALCULO DE LA LONGITUD DE LA LINEA
-	while (buf[i] != '\n')
-	{
-		while (i <= sizeof(buf) && buf[i] != '\n')
-			i++;
-		if (buf[i] != '\n')
-			read(fd, buf, sizeof(buf) + i);
-	}
-	// ------COPIA DE LA STRING EN AUX
+	read(fd, buf, BUFFER_SIZE);
+	while (buf[i] != '\n' || !buf)
+		i++;
 	aux = malloc(sizeof(char) * i);
 	if (!aux)
 		return (NULL);
@@ -64,6 +57,6 @@ int	main()
 {
 	int fd = open("prueba.txt", O_RDONLY);
 	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	//printf("%s", get_next_line(fd));
 	return (0);
 }
