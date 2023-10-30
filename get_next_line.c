@@ -40,12 +40,19 @@ char *get_next_line(int fd)
 {
 	static char	*buf;
 	int			i;
+	int		j;
 	char		*aux;
 
 	i = 0;
-	read(fd, buf, BUFFER_SIZE);
-	while (buf[i] != '\n' || !buf)
+	j = -2;
+	if (!buf)
+		read(fd, buf, BUFFER_SIZE);
+	while (buf[i] != '\n' && j != 0)
+	{
 		i++;
+		if ((i == BUFFER_SIZE || i == j) && buf[i] != '\n')
+			j = read(fd, buf, BUFFER_SIZE);
+	}
 	aux = malloc(sizeof(char) * i);
 	if (!aux)
 		return (NULL);
