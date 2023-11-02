@@ -58,21 +58,27 @@ char	*ft_strjoin(char const *s1, char const *s2)
 char *get_next_line(int fd)
 {
 	static char	*buf;
-	int			i;
-	int		j;
+	int			i; //si la i no es estatica, se va a iterar correctamente en las llamadas siguientes a la primera? y si en vez de utilizar arrays, utilizas punteros?
+	int			j;
 	char		*aux;
+	char		*bufaux;
 
 	i = 0;
 	j = -2;
-	buf = malloc(BUFFER_SIZE);
+	bufaux = NULL;
 	if (!buf)
-		read(fd, buf, BUFFER_SIZE);
-	while (buf[i] != '\n' && j != 0)
+	{
+		buf = malloc(BUFFER_SIZE);
+		j = read(fd, buf, BUFFER_SIZE);
+	}
+	if (j == 0)
+		return (NULL);  //para la comprobacion de final de archivo, que debe devolver null
+	while (buf[i] != '\n' && j != 0) 
 	{
 		i++;
 		if ((i == BUFFER_SIZE || i == j) && buf[i] != '\n')
 		{
-			ft_strjoin()
+			bufaux = ft_strjoin(bufaux, buf); //no tengo muy claro que esto funcione. en la line 68 la he inicializado a nula pero sin aplicar un tamaño.
 			i = 0;
 			j = read(fd, buf, BUFFER_SIZE);
 		}
