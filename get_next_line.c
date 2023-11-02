@@ -72,8 +72,8 @@ char *get_next_line(int fd)
 		j = read(fd, buf, BUFFER_SIZE);
 	}
 	if (j == 0)
-		return (NULL);  //para la comprobacion de final de archivo, que debe devolver null
-	while (buf[i] != '\n' && j != 0) 
+		return (NULL);  //no funciona. hay que meterlo dentro del while d abajo. adivina donde.
+	while (buf[i] != '\n' && j != 0) //y que pasa si buf está a la mitad? como se supone que va a operar eso si la i no es estática? hasta donde deberia iterar en caso de alcanzar buffer_size?
 	{
 		i++;
 		if ((i == BUFFER_SIZE || i == j) && buf[i] != '\n')
