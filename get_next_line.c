@@ -58,37 +58,24 @@ char	*ft_strjoin(char const *s1, char const *s2)
 char *get_next_line(int fd)
 {
 	static char	*buf;
-	int			i; //si la i no es estatica, se va a iterar correctamente en las llamadas siguientes a la primera? y si en vez de utilizar arrays, utilizas punteros?
-	int			j;
+	int			i;
+	//int			j;
 	char		*aux;
-	char		*bufaux;
+	//char		*bufaux;
 
-	i = 0;
-	j = -2;
-	bufaux = NULL;
 	if (!buf)
 	{
 		buf = malloc(BUFFER_SIZE);
-		j = read(fd, buf, BUFFER_SIZE);
+		read(fd, buf, BUFFER_SIZE);
 	}
-	if (j == 0)
-		return (NULL);  //no funciona. hay que meterlo dentro del while d abajo. adivina donde.
-	while (buf[i] != '\n' && j != 0) //y que pasa si buf está a la mitad? como se supone que va a operar eso si la i no es estática? hasta donde deberia iterar en caso de alcanzar buffer_size?
-	{
+	while (*(buf++) != '\n')
 		i++;
-		if ((i == BUFFER_SIZE || i == j) && buf[i] != '\n')
-		{
-			bufaux = ft_strjoin(bufaux, buf); //no tengo muy claro que esto funcione. en la line 68 la he inicializado a nula pero sin aplicar un tamaño.
-			i = 0;
-			j = read(fd, buf, BUFFER_SIZE);
-		}
-	}
-	aux = malloc(sizeof(char) * (i + 3));
-	if (!aux)
-		return (NULL);
-	ft_strlcpy(aux, buf, i + 2);
-	aux[++i] = '\0';
+	i++;
+	buf -= i;
+	ft_strlcpy(aux, buf, i);
+	buf += i;
 	return (aux);
+	
 }
 
 int	main()
