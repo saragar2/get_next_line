@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/10/30 20:53:40 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/08 19:08:42 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,18 @@
 #include <stdio.h>
 #include <fcntl.h>
 
+size_t	ft_strlen(const char *s)
+{
+	size_t	cont;
+
+	cont = 0;
+	while (*s != '\0')
+	{
+		cont ++;
+		s ++;
+	}
+	return (cont);
+}
 
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
@@ -36,33 +48,13 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 	return (src_len);
 }
 
-
-char	*ft_strjoin(char const *s1, char const *s2)
-{
-	char	*newstr;
-	int		size;
-
-	size = ft_strlen(s1) + ft_strlen(s2) + 1;
-	newstr = malloc(size);
-	if (!newstr)
-		return (NULL);
-	while (*s1 != '\0')
-		*newstr++ = *s1++;
-	while (*s2 != '\0')
-		*newstr++ = *s2++;
-	*newstr = '\0';
-	newstr -= (size - 1);
-	return (newstr);
-}
-
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
 	static char	*buf;
 	int			i;
-	//int			j;
 	char		*aux;
-	//char		*bufaux;
 
+	i = 0;
 	if (!buf)
 	{
 		buf = malloc(BUFFER_SIZE);
@@ -72,15 +64,17 @@ char *get_next_line(int fd)
 		i++;
 	i++;
 	buf -= i;
-	ft_strlcpy(aux, buf, i);
+	aux = malloc(ft_strlen(buf) * sizeof(char));
+	ft_strlcpy(aux, buf, i + 1);
 	buf += i;
 	return (aux);
-	
 }
 
 int	main()
 {
 	int fd = open("prueba.txt", O_RDONLY);
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
 	return (0);
