@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/08 19:08:42 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/11 14:18:50 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,30 @@ size_t	ft_strlen(const char *s)
 		s ++;
 	}
 	return (cont);
+}
+
+char	*ft_strdup(const char *s1)
+{
+	char	*aux;
+	int		len;
+
+	len = ft_strlen(s1);
+	aux = malloc(len + 1);
+	if (!aux)
+		return (NULL);
+	while (*s1 != '\0')
+	{
+		*aux = *s1;
+		aux++;
+		s1++;
+	}
+	*aux = '\0';
+	while (len > 0)
+	{
+		len--;
+		aux--;
+	}
+	return (aux);
 }
 
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
@@ -48,26 +72,89 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 	return (src_len);
 }
 
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	char	*newstr;
+	int		size;
+
+	size = ft_strlen(s1) + ft_strlen(s2) + 1;
+	newstr = malloc(size);
+	if (!newstr)
+		return (NULL);
+	while (*s1 != '\0')
+		*newstr++ = *s1++;
+	while (*s2 != '\0')
+		*newstr++ = *s2++;
+	*newstr = '\0';
+	newstr -= (size - 1);
+	return (newstr);
+}
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*aux;
+	size_t	cont;
+
+	cont = 0;
+	if (start < 0 || ft_strlen(s) < start)
+		return (ft_strdup(""));
+	if (len > (ft_strlen(s) - start))
+		aux = malloc(ft_strlen(s) - start + 1);
+	else
+		aux = malloc(len + 1);
+	if (!aux)
+		return (NULL);
+	s += start;
+	while (len > 0 && *s != '\0')
+	{
+		*(aux++) = *(s++);
+		cont++;
+		len--;
+	}
+	*aux = '\0';
+	while (cont-- > 0)
+		aux--;
+	return (aux);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*buf;
 	int			i;
-	char		*aux;
+	int			j;
+	//char		*aux;
+	char		*bufaux;
 
 	i = 0;
-	if (!buf)
+	bufaux = NULL;
+	if (!buf || buf[i] == '\0')
 	{
-		buf = malloc(BUFFER_SIZE);
-		read(fd, buf, BUFFER_SIZE);
+		buf = malloc(BUFFER_SIZE + 1);
+		j = read(fd, buf, BUFFER_SIZE);
+		buf[j + 1] = '\0';
 	}
-	while (*(buf++) != '\n')
+	else
+		j = ft_strlen(buf);
+	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
+	{
 		i++;
-	i++;
-	buf -= i;
-	aux = malloc(ft_strlen(buf) * sizeof(char));
-	ft_strlcpy(aux, buf, i + 1);
-	buf += i;
-	return (aux);
+		if (buf[i] == '\0')
+		{
+			if (!bufaux)
+				bufaux = malloc(BUFFER_SIZE);
+			bufaux = ft_strjoin(bufaux, buf);
+			j = read(fd, buf, BUFFER_SIZE);
+			buf[j + 1] = '\0';
+			i = 0;
+		}
+	}
+	if (!bufaux)
+	{
+		bufaux = malloc(BUFFER_SIZE - i);
+		bufaux = ft_substr(buf, 0, i);
+	}
+	buf = ft_substr(buf, i, BUFFER_SIZE - i);
+	return (bufaux);
 }
 
 int	main()
@@ -76,6 +163,6 @@ int	main()
 	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	//printf("%s", get_next_line(fd));
 	return (0);
 }
