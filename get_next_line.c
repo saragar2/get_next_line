@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/11 14:18:50 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/12 00:34:03 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,24 +52,11 @@ char	*ft_strdup(const char *s1)
 	return (aux);
 }
 
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+char	*ft_strcpy(char *dst, const char *src)
 {
-	size_t	i;
-	size_t	src_len;
-
-	i = 0;
-	src_len = 0;
-	while (src[src_len] != '\0')
-		src_len++;
-	if (dstsize == 0)
-		return (src_len);
-	while (i < dstsize - 1 && src[i] != '\0')
-	{
-		dst[i] = src[i];
-		i++;
-	}
-	dst[i] = '\0';
-	return (src_len);
+	while (*src != '\0')
+		*(dst++) = *(src++);
+	return (dst);
 }
 
 char	*ft_strjoin(char const *s1, char const *s2)
@@ -122,16 +109,16 @@ char	*get_next_line(int fd)
 	static char	*buf;
 	int			i;
 	int			j;
-	//char		*aux;
+	char		*aux;
 	char		*bufaux;
 
 	i = 0;
 	bufaux = NULL;
-	if (!buf || buf[i] == '\0')
+	if (!buf/* || buf[i] == '\0'*/)
 	{
 		buf = malloc(BUFFER_SIZE + 1);
 		j = read(fd, buf, BUFFER_SIZE);
-		buf[j + 1] = '\0';
+		buf[j] = '\0';
 	}
 	else
 		j = ft_strlen(buf);
@@ -148,21 +135,25 @@ char	*get_next_line(int fd)
 			i = 0;
 		}
 	}
+	i++;
 	if (!bufaux)
 	{
 		bufaux = malloc(i);
 		bufaux = ft_substr(buf, 0, i);
 	}
-	buf = ft_substr(buf, i, BUFFER_SIZE - i);
+	ft_strcpy(aux, buf);
+	free(buf);
+	buf = malloc(j - i + 1);
+	buf = ft_substr(aux, i, j - i + 1);
 	return (bufaux);
 }
 
 int	main()
 {
-	int fd = open("prueba.txt", O_RDONLY);
+	int fd = open("pruebaDOS.txt", O_RDONLY);
 	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	//printf("%s", get_next_line(fd));
 	//printf("%s", get_next_line(fd));
 	return (0);
 }
