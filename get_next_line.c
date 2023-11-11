@@ -150,7 +150,7 @@ char	*get_next_line(int fd)
 	}
 	if (!bufaux)
 	{
-		bufaux = malloc(BUFFER_SIZE - i);
+		bufaux = malloc(i);
 		bufaux = ft_substr(buf, 0, i);
 	}
 	buf = ft_substr(buf, i, BUFFER_SIZE - i);
