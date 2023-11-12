@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/12 00:34:03 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/12 19:37:01 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,10 +141,24 @@ char	*get_next_line(int fd)
 		bufaux = malloc(i);
 		bufaux = ft_substr(buf, 0, i);
 	}
-	ft_strcpy(aux, buf);
-	free(buf);
-	buf = malloc(j - i + 1);
-	buf = ft_substr(aux, i, j - i + 1);
+	else
+        {
+                char    *subbuf; //-----CAMBIA ESTO DE SITIO ZORRA
+                subbuf = ft_substr(buf, 0, i);
+                bufaux = ft_strjoin(bufaux, subbuf);
+        }
+        int k = 0;
+        aux = malloc(ft_strlen(buf) + 1);
+        while (buf[k] != '\0')
+        {
+            aux[k] = buf[k];
+            k++;
+        }
+	aux[k]  = '\0';
+        free(buf);
+        buf = malloc(j - i + 1);
+        buf = ft_substr(aux, i, j - i + 1);
+        free(aux);
 	return (bufaux);
 }
 
@@ -153,7 +167,7 @@ int	main()
 	int fd = open("pruebaDOS.txt", O_RDONLY);
 	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
-	//printf("%s", get_next_line(fd));
-	//printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	return (0);
 }
