@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/12 19:37:01 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/13 19:41:46 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ char	*ft_strcpy(char *dst, const char *src)
 	return (dst);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*newstr;
 	int		size;
@@ -77,7 +77,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (newstr);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+char	*ft_substr(char *s, unsigned int start, size_t len)
 {
 	char	*aux;
 	size_t	cont;
@@ -114,9 +114,11 @@ char	*get_next_line(int fd)
 
 	i = 0;
 	bufaux = NULL;
-	if (!buf/* || buf[i] == '\0'*/)
+	if (!buf || buf[i] == '\0')
 	{
 		buf = malloc(BUFFER_SIZE + 1);
+		if (!buf)
+			return  (NULL);
 		j = read(fd, buf, BUFFER_SIZE);
 		buf[j] = '\0';
 	}
@@ -128,9 +130,21 @@ char	*get_next_line(int fd)
 		if (buf[i] == '\0')
 		{
 			if (!bufaux)
+			{
 				bufaux = malloc(BUFFER_SIZE);
+				if (!bufaux)
+				{
+					free(buf);
+					return (NULL);
+				}
+			}
 			bufaux = ft_strjoin(bufaux, buf);
 			j = read(fd, buf, BUFFER_SIZE);
+			if (j == -1)
+			{
+				free(buf);
+				return (NULL);
+			}
 			buf[j + 1] = '\0';
 			i = 0;
 		}
@@ -139,35 +153,73 @@ char	*get_next_line(int fd)
 	if (!bufaux)
 	{
 		bufaux = malloc(i);
+		if (!bufaux)
+		{
+			free(buf);
+			return (NULL);
+		}
 		bufaux = ft_substr(buf, 0, i);
 	}
 	else
-        {
-                char    *subbuf; //-----CAMBIA ESTO DE SITIO ZORRA
-                subbuf = ft_substr(buf, 0, i);
-                bufaux = ft_strjoin(bufaux, subbuf);
-        }
-        int k = 0;
-        aux = malloc(ft_strlen(buf) + 1);
-        while (buf[k] != '\0')
-        {
-            aux[k] = buf[k];
-            k++;
-        }
+	{
+		char    *subbuf; //-----CAMBIA ESTO DE SITIO ZORRA
+		subbuf = ft_substr(buf, 0, i);
+		bufaux = ft_strjoin(bufaux, subbuf);
+		free(subbuf);
+	}
+	int k = 0; //-----ESTO TAMBIEN
+	aux = malloc(ft_strlen(buf) + 1);
+	if (!aux)
+	{
+		free(buf);
+		return (NULL);
+	}
+	while (buf[k] != '\0')
+	{
+		aux[k] = buf[k];
+		k++;
+	}
 	aux[k]  = '\0';
-        free(buf);
-        buf = malloc(j - i + 1);
-        buf = ft_substr(aux, i, j - i + 1);
-        free(aux);
+	free(buf);
+	buf = malloc(j - i + 1);
+	if (!buf)
+		return (NULL);
+	buf = ft_substr(aux, i, j - i + 1);
+	free(aux);
 	return (bufaux);
+}
+
+void leaks()
+{
+	system("leaks -q a.out");
 }
 
 int	main()
 {
+	char	*s;
 	int fd = open("pruebaDOS.txt", O_RDONLY);
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
+	/*s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);*/
+	//printf("%s", get_next_line(fd));
+	atexit(leaks);
 	return (0);
 }
