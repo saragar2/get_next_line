@@ -6,21 +6,18 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/13 19:41:46 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/14 20:15:15 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
+#include "get_next_line.h"
 
 size_t	ft_strlen(const char *s)
 {
 	size_t	cont;
 
 	cont = 0;
-	while (*s != '\0')
+	while (*s != '\0') //-----LEAK
 	{
 		cont ++;
 		s ++;
@@ -64,7 +61,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	char	*newstr;
 	int		size;
 
-	size = ft_strlen(s1) + ft_strlen(s2) + 1;
+	size = ft_strlen(s1) + ft_strlen(s2) + 1; //-----LEAK
 	newstr = malloc(size);
 	if (!newstr)
 		return (NULL);
@@ -86,7 +83,7 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	if (start < 0 || ft_strlen(s) < start)
 		return (ft_strdup(""));
 	if (len > (ft_strlen(s) - start))
-		aux = malloc(ft_strlen(s) - start + 1);
+		aux = malloc(ft_strlen(s) - start + 1); //-----LEAK
 	else
 		aux = malloc(len + 1);
 	if (!aux)
@@ -114,13 +111,18 @@ char	*get_next_line(int fd)
 
 	i = 0;
 	bufaux = NULL;
-	if (!buf || buf[i] == '\0')
+	if (!buf || buf[i] == '\0') //-----LEAK
 	{
-		buf = malloc(BUFFER_SIZE + 1);
+		buf = malloc(BUFFER_SIZE + 1); //----LEAK
 		if (!buf)
 			return  (NULL);
 		j = read(fd, buf, BUFFER_SIZE);
-		buf[j] = '\0';
+		if (j == 0 || BUFFER_SIZE == 0)
+		{
+			free(buf); //-----LEAK
+			return (NULL);
+		}
+		buf[j] = '\0'; //-----LEAK
 	}
 	else
 		j = ft_strlen(buf);
@@ -131,14 +133,14 @@ char	*get_next_line(int fd)
 		{
 			if (!bufaux)
 			{
-				bufaux = malloc(BUFFER_SIZE);
+				bufaux = malloc(BUFFER_SIZE); //-----LEAK
 				if (!bufaux)
 				{
 					free(buf);
 					return (NULL);
 				}
 			}
-			bufaux = ft_strjoin(bufaux, buf);
+			bufaux = ft_strjoin(bufaux, buf); //-----LEAK
 			j = read(fd, buf, BUFFER_SIZE);
 			if (j == -1)
 			{
@@ -152,7 +154,7 @@ char	*get_next_line(int fd)
 	i++;
 	if (!bufaux)
 	{
-		bufaux = malloc(i);
+		bufaux = malloc(i); //-----LEAK
 		if (!bufaux)
 		{
 			free(buf);
@@ -181,10 +183,10 @@ char	*get_next_line(int fd)
 	}
 	aux[k]  = '\0';
 	free(buf);
-	buf = malloc(j - i + 1);
+	buf = malloc(j - i + 1); //-----LEAK
 	if (!buf)
 		return (NULL);
-	buf = ft_substr(aux, i, j - i + 1);
+	buf = ft_substr(aux, i, j - i + 1); //-----LEAK
 	free(aux);
 	return (bufaux);
 }
@@ -194,16 +196,13 @@ void leaks()
 	system("leaks -q a.out");
 }
 
-int	main()
+/*int	main()
 {
 	char	*s;
 	int fd = open("pruebaDOS.txt", O_RDONLY);
 	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-	/*s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
 	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
@@ -218,8 +217,11 @@ int	main()
 	free (s);
 	s = get_next_line(fd);
 	printf("%s", s);
-	free (s);*/
+	free (s);
+	s = get_next_line(fd);
+	printf("%s", s);
+	free (s);
 	//printf("%s", get_next_line(fd));
 	atexit(leaks);
 	return (0);
-}
+}*/
