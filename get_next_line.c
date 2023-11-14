@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/14 20:15:15 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/14 21:07:49 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ size_t	ft_strlen(const char *s)
 		cont ++;
 		s ++;
 	}
+	s -= cont;
+	
 	return (cont);
 }
 
@@ -49,18 +51,15 @@ char	*ft_strdup(const char *s1)
 	return (aux);
 }
 
-char	*ft_strcpy(char *dst, const char *src)
-{
-	while (*src != '\0')
-		*(dst++) = *(src++);
-	return (dst);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin(char *a, char *b)
 {
 	char	*newstr;
 	int		size;
+	char	*s1;
+	char	*s2;
 
+	s1 = a;
+	s2 = b;
 	size = ft_strlen(s1) + ft_strlen(s2) + 1; //-----LEAK
 	newstr = malloc(size);
 	if (!newstr)
@@ -71,6 +70,8 @@ char	*ft_strjoin(char *s1, char *s2)
 		*newstr++ = *s2++;
 	*newstr = '\0';
 	newstr -= (size - 1);
+	free(a);
+	free(b);
 	return (newstr);
 }
 
@@ -113,13 +114,15 @@ char	*get_next_line(int fd)
 	bufaux = NULL;
 	if (!buf || buf[i] == '\0') //-----LEAK
 	{
-		buf = malloc(BUFFER_SIZE + 1); //----LEAK
+		if (!buf)
+			buf = malloc(BUFFER_SIZE + 1); //----LEAK
 		if (!buf)
 			return  (NULL);
 		j = read(fd, buf, BUFFER_SIZE);
-		if (j == 0 || BUFFER_SIZE == 0)
+		if (j <= 0 || BUFFER_SIZE == 0)
 		{
 			free(buf); //-----LEAK
+			buf = 0;
 			return (NULL);
 		}
 		buf[j] = '\0'; //-----LEAK
@@ -137,6 +140,7 @@ char	*get_next_line(int fd)
 				if (!bufaux)
 				{
 					free(buf);
+					buf = 0;
 					return (NULL);
 				}
 			}
@@ -145,6 +149,7 @@ char	*get_next_line(int fd)
 			if (j == -1)
 			{
 				free(buf);
+				buf = 0;
 				return (NULL);
 			}
 			buf[j + 1] = '\0';
@@ -158,6 +163,7 @@ char	*get_next_line(int fd)
 		if (!bufaux)
 		{
 			free(buf);
+			buf = 0;
 			return (NULL);
 		}
 		bufaux = ft_substr(buf, 0, i);
@@ -168,12 +174,14 @@ char	*get_next_line(int fd)
 		subbuf = ft_substr(buf, 0, i);
 		bufaux = ft_strjoin(bufaux, subbuf);
 		free(subbuf);
+		subbuf = 0;
 	}
 	int k = 0; //-----ESTO TAMBIEN
 	aux = malloc(ft_strlen(buf) + 1);
 	if (!aux)
 	{
 		free(buf);
+		buf = 0;
 		return (NULL);
 	}
 	while (buf[k] != '\0')
@@ -183,11 +191,13 @@ char	*get_next_line(int fd)
 	}
 	aux[k]  = '\0';
 	free(buf);
+	buf = 0;
 	buf = malloc(j - i + 1); //-----LEAK
 	if (!buf)
 		return (NULL);
 	buf = ft_substr(aux, i, j - i + 1); //-----LEAK
 	free(aux);
+	aux = 0;
 	return (bufaux);
 }
 
