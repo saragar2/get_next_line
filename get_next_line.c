@@ -6,11 +6,13 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/14 21:07:49 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/15 22:05:30 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <fcntl.h>
+#include <stdio.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -51,15 +53,11 @@ char	*ft_strdup(const char *s1)
 	return (aux);
 }
 
-char	*ft_strjoin(char *a, char *b)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*newstr;
 	int		size;
-	char	*s1;
-	char	*s2;
 
-	s1 = a;
-	s2 = b;
 	size = ft_strlen(s1) + ft_strlen(s2) + 1; //-----LEAK
 	newstr = malloc(size);
 	if (!newstr)
@@ -70,8 +68,6 @@ char	*ft_strjoin(char *a, char *b)
 		*newstr++ = *s2++;
 	*newstr = '\0';
 	newstr -= (size - 1);
-	free(a);
-	free(b);
 	return (newstr);
 }
 
@@ -127,8 +123,6 @@ char	*get_next_line(int fd)
 		}
 		buf[j] = '\0'; //-----LEAK
 	}
-	else
-		j = ft_strlen(buf);
 	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
 	{
 		i++;
@@ -138,17 +132,17 @@ char	*get_next_line(int fd)
 			{
 				bufaux = malloc(BUFFER_SIZE); //-----LEAK
 				if (!bufaux)
-				{
-					free(buf);
-					buf = 0;
 					return (NULL);
-				}
+				bufaux[0] = '\0';
 			}
-			bufaux = ft_strjoin(bufaux, buf); //-----LEAK
+			aux = bufaux;
+			bufaux = ft_strjoin(aux, buf); //-----LEAK
+			free(aux);
 			j = read(fd, buf, BUFFER_SIZE);
-			if (j == -1)
+			if (j < 0)
 			{
 				free(buf);
+				free(bufaux);
 				buf = 0;
 				return (NULL);
 			}
@@ -206,7 +200,7 @@ void leaks()
 	system("leaks -q a.out");
 }
 
-/*int	main()
+int	main()
 {
 	char	*s;
 	int fd = open("pruebaDOS.txt", O_RDONLY);
@@ -234,4 +228,4 @@ void leaks()
 	//printf("%s", get_next_line(fd));
 	atexit(leaks);
 	return (0);
-}*/
+}
