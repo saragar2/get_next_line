@@ -98,7 +98,7 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	return (aux);
 }
 
-char	*testingleaks (int fd)
+char	*get_next_line(int fd)
 {
 	static char	*buf;
 	int			i;
@@ -197,39 +197,35 @@ int main ()
 {
 	char	*s;
 	int fd = open("pruebaDOS.txt", O_RDONLY);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
+ 
+	s = get_next_line(fd);
 	printf("%s", s);
 	free (s);
-
-	s = testingleaks(fd);
-	printf("%s", s);
-	free (s);
-
+ 
 	atexit(leaks);
 	return (0);
 }*/
