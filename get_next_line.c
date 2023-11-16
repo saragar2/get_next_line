@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/23 18:20:28 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/15 22:05:30 by saragar2         ###   ########.fr       */
+/*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
+/*   Updated: 2023/11/16 16:51:04 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ size_t	ft_strlen(const char *s)
 		s ++;
 	}
 	s -= cont;
-	
+
 	return (cont);
 }
 
@@ -98,7 +98,7 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	return (aux);
 }
 
-char	*get_next_line(int fd)
+char	*testingleaks (int fd)
 {
 	static char	*buf;
 	int			i;
@@ -123,6 +123,8 @@ char	*get_next_line(int fd)
 		}
 		buf[j] = '\0'; //-----LEAK
 	}
+	else
+		j = ft_strlen(buf);
 	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
 	{
 		i++;
@@ -152,21 +154,14 @@ char	*get_next_line(int fd)
 	}
 	i++;
 	if (!bufaux)
-	{
-		bufaux = malloc(i); //-----LEAK
-		if (!bufaux)
-		{
-			free(buf);
-			buf = 0;
-			return (NULL);
-		}
 		bufaux = ft_substr(buf, 0, i);
-	}
 	else
 	{
 		char    *subbuf; //-----CAMBIA ESTO DE SITIO ZORRA
 		subbuf = ft_substr(buf, 0, i);
-		bufaux = ft_strjoin(bufaux, subbuf);
+		aux = bufaux;
+		bufaux = ft_strjoin(aux, subbuf);
+		free(aux);
 		free(subbuf);
 		subbuf = 0;
 	}
@@ -184,48 +179,57 @@ char	*get_next_line(int fd)
 		k++;
 	}
 	aux[k]  = '\0';
+	//-----desde aqui
 	free(buf);
 	buf = 0;
-	buf = malloc(j - i + 1); //-----LEAK
-	if (!buf)
-		return (NULL);
 	buf = ft_substr(aux, i, j - i + 1); //-----LEAK
 	free(aux);
 	aux = 0;
 	return (bufaux);
 }
 
-void leaks()
+/*void leaks()
 {
 	system("leaks -q a.out");
 }
 
-int	main()
+int main ()
 {
 	char	*s;
 	int fd = open("pruebaDOS.txt", O_RDONLY);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	s = get_next_line(fd);
+
+	s = testingleaks(fd);
 	printf("%s", s);
 	free (s);
-	//printf("%s", get_next_line(fd));
+
+	s = testingleaks(fd);
+	printf("%s", s);
+	free (s);
+
 	atexit(leaks);
 	return (0);
-}
+}*/
