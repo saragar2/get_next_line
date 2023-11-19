@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/16 16:51:04 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/19 18:51:16 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ size_t	ft_strlen(const char *s)
 		s ++;
 	}
 	s -= cont;
-
 	return (cont);
 }
 
@@ -113,12 +112,12 @@ char	*get_next_line(int fd)
 		if (!buf)
 			buf = malloc(BUFFER_SIZE + 1); //----LEAK
 		if (!buf)
-			return  (NULL);
+			return (NULL);
 		j = read(fd, buf, BUFFER_SIZE);
 		if (j <= 0 || BUFFER_SIZE == 0)
 		{
 			free(buf); //-----LEAK
-			buf = 0;
+			buf = NULL;
 			return (NULL);
 		}
 		buf[j] = '\0'; //-----LEAK
@@ -145,17 +144,17 @@ char	*get_next_line(int fd)
 			{
 				free(buf);
 				free(bufaux);
-				buf = 0;
+				buf = NULL;
 				return (NULL);
 			}
-			buf[j + 1] = '\0';
+			buf[j] = '\0';
 			i = 0;
 		}
 	}
 	i++;
 	if (!bufaux)
 		bufaux = ft_substr(buf, 0, i);
-	else
+	else if (j > 0)
 	{
 		char    *subbuf; //-----CAMBIA ESTO DE SITIO ZORRA
 		subbuf = ft_substr(buf, 0, i);
@@ -163,14 +162,14 @@ char	*get_next_line(int fd)
 		bufaux = ft_strjoin(aux, subbuf);
 		free(aux);
 		free(subbuf);
-		subbuf = 0;
+		subbuf = NULL;
 	}
 	int k = 0; //-----ESTO TAMBIEN
 	aux = malloc(ft_strlen(buf) + 1);
 	if (!aux)
 	{
 		free(buf);
-		buf = 0;
+		buf = NULL;
 		return (NULL);
 	}
 	while (buf[k] != '\0')
@@ -181,10 +180,10 @@ char	*get_next_line(int fd)
 	aux[k]  = '\0';
 	//-----desde aqui
 	free(buf);
-	buf = 0;
+	buf = NULL;
 	buf = ft_substr(aux, i, j - i + 1); //-----LEAK
 	free(aux);
-	aux = 0;
+	aux = NULL;
 	return (bufaux);
 }
 
@@ -196,7 +195,7 @@ char	*get_next_line(int fd)
 int main ()
 {
 	char	*s;
-	int fd = open("pruebaDOS.txt", O_RDONLY);
+	int fd = open("multiple_line_with_nl.txt", O_RDONLY);
  
 	s = get_next_line(fd);
 	printf("%s", s);
