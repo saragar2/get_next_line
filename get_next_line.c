@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/20 19:57:53 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/20 21:04:29 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,10 @@ char	*get_next_line(int fd)
 			{
 				bufaux = malloc(BUFFER_SIZE); //-----LEAK
 				if (!bufaux)
+				{
+					free(buf);
 					return (NULL);
+				}
 				bufaux[0] = '\0';
 			}
 			aux = bufaux;
@@ -142,6 +145,8 @@ char	*get_next_line(int fd)
 			free(aux);
 			free(buf);
 			buf = malloc(BUFFER_SIZE + 1);
+			if (!buf)
+				return (NULL);
 			j = read(fd, buf, BUFFER_SIZE);
 			if (j < 0)
 			{
