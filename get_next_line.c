@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/19 18:51:16 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:57:53 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,9 @@ char	*get_next_line(int fd)
 	bufaux = NULL;
 	if (!buf || buf[i] == '\0') //-----LEAK
 	{
-		if (!buf)
-			buf = malloc(BUFFER_SIZE + 1); //----LEAK
+		if (buf && buf[i] == '\0')
+			free(buf);
+		buf = malloc(BUFFER_SIZE + 1); //----LEAK
 		if (!buf)
 			return (NULL);
 		j = read(fd, buf, BUFFER_SIZE);
@@ -139,6 +140,8 @@ char	*get_next_line(int fd)
 			aux = bufaux;
 			bufaux = ft_strjoin(aux, buf); //-----LEAK
 			free(aux);
+			free(buf);
+			buf = malloc(BUFFER_SIZE + 1);
 			j = read(fd, buf, BUFFER_SIZE);
 			if (j < 0)
 			{
