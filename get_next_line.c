@@ -107,6 +107,7 @@ char	*get_next_line(int fd)
 
 	i = 0;
 	bufaux = NULL;
+	//----------FUNCION: DEVUELVE BUF------------
 	if (!buf || buf[i] == '\0') //-----LEAK
 	{
 		if (buf && buf[i] == '\0')
@@ -123,7 +124,8 @@ char	*get_next_line(int fd)
 		}
 		buf[j] = '\0'; //-----LEAK
 	}
-	else
+	//----------------------------------------------------
+	else //--------------QUITAR, HAY QUE GLOBALIZAR EL PASO DE DENTRO
 		j = ft_strlen(buf);
 	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
 	{
@@ -160,11 +162,12 @@ char	*get_next_line(int fd)
 		}
 	}
 	i++;
+	//----------FUNCION: DEVUELVE BUFAUX------------
 	if (!bufaux)
 		bufaux = ft_substr(buf, 0, i);
 	else if (j > 0)
 	{
-		char    *subbuf; //-----CAMBIA ESTO DE SITIO ZORRA
+		char    *subbuf;
 		subbuf = ft_substr(buf, 0, i);
 		aux = bufaux;
 		bufaux = ft_strjoin(aux, subbuf);
@@ -172,7 +175,9 @@ char	*get_next_line(int fd)
 		free(subbuf);
 		subbuf = NULL;
 	}
-	int k = 0; //-----ESTO TAMBIEN
+	//------------------------------------------------
+	//-------------FUNCION: DEVUELVE AUX----------------
+	int k = 0;
 	aux = malloc(ft_strlen(buf) + 1);
 	if (!aux)
 	{
@@ -186,10 +191,10 @@ char	*get_next_line(int fd)
 		k++;
 	}
 	aux[k]  = '\0';
-	//-----desde aqui
 	free(buf);
 	buf = NULL;
-	buf = ft_substr(aux, i, j - i + 1); //-----LEAK
+	//----------------------------------------(Y QUIZAS PUEDA COGER LO DE ABAJO)
+	buf = ft_substr(aux, i, j - i + 1);
 	free(aux);
 	aux = NULL;
 	return (bufaux);
