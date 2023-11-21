@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/21 20:37:20 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:28:09 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ char	*newbuf(char *buf, int i, int j)
 		aux[k] = buf[k];
 		k++;
 	}
-	aux[k]  = '\0';
+	aux[k] = '\0';
 	free(buf);
 	buf = NULL;
 	buf = ft_substr(aux, i, j - i + 1);
@@ -60,12 +60,32 @@ char	*newbuf(char *buf, int i, int j)
 	return (buf);
 }
 
+char	*bufauxfornull(char *bufaux, char *buf)
+{
+	char	*aux;
+
+	if (!bufaux)
+	{
+		bufaux = malloc(BUFFER_SIZE);
+		if (!bufaux)
+		{
+			free(buf);
+			return (NULL);
+		}
+		bufaux[0] = '\0';
+	}
+	aux = bufaux;
+	bufaux = ft_strjoin(aux, buf);
+	free(aux);
+	free(buf);
+	return (bufaux);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*buf;
 	int			i;
 	int			j;
-	char		*aux;
 	char		*bufaux;
 
 	i = 0;
@@ -93,20 +113,7 @@ char	*get_next_line(int fd)
 		i++;
 		if (buf[i] == '\0')
 		{
-			if (!bufaux)
-			{
-				bufaux = malloc(BUFFER_SIZE);
-				if (!bufaux)
-				{
-					free(buf);
-					return (NULL);
-				}
-				bufaux[0] = '\0';
-			}
-			aux = bufaux;
-			bufaux = ft_strjoin(aux, buf);
-			free(aux);
-			free(buf);
+			bufaux = bufauxfornull(bufaux, buf);
 			buf = malloc(BUFFER_SIZE + 1);
 			if (!buf)
 				return (NULL);
