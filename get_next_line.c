@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/21 20:01:50 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/21 20:37:20 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,33 @@ char	*createbufaux(char *buf, int i, char *bufaux, int j)
 		subbuf = NULL;
 	}
 	return (bufaux);
+}
+
+char	*newbuf(char *buf, int i, int j)
+{
+	int		k;
+	char	*aux;
+
+	k = 0;
+	aux = malloc(ft_strlen(buf) + 1);
+	if (!aux)
+	{
+		free(buf);
+		buf = NULL;
+		return (NULL);
+	}
+	while (buf[k] != '\0')
+	{
+		aux[k] = buf[k];
+		k++;
+	}
+	aux[k]  = '\0';
+	free(buf);
+	buf = NULL;
+	buf = ft_substr(aux, i, j - i + 1);
+	free(aux);
+	aux = NULL;
+	return (buf);
 }
 
 char	*get_next_line(int fd)
@@ -97,25 +124,7 @@ char	*get_next_line(int fd)
 	}
 	i++;
 	bufaux = createbufaux(buf, i, bufaux, j);
-	int k = 0; //-----ESTO TAMBIEN
-	aux = malloc(ft_strlen(buf) + 1);
-	if (!aux)
-	{
-		free(buf);
-		buf = NULL;
-		return (NULL);
-	}
-	while (buf[k] != '\0')
-	{
-		aux[k] = buf[k];
-		k++;
-	}
-	aux[k]  = '\0';
-	free(buf);
-	buf = NULL;
-	buf = ft_substr(aux, i, j - i + 1);
-	free(aux);
-	aux = NULL;
+	buf = newbuf(buf, i, j);
 	return (bufaux);
 }
 
