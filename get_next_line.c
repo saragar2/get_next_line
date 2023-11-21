@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/20 21:04:29 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/21 20:01:50 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,87 +14,23 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-size_t	ft_strlen(const char *s)
+char	*createbufaux(char *buf, int i, char *bufaux, int j)
 {
-	size_t	cont;
-
-	cont = 0;
-	while (*s != '\0') //-----LEAK
-	{
-		cont ++;
-		s ++;
-	}
-	s -= cont;
-	return (cont);
-}
-
-char	*ft_strdup(const char *s1)
-{
+	char	*subbuf;
 	char	*aux;
-	int		len;
 
-	len = ft_strlen(s1);
-	aux = malloc(len + 1);
-	if (!aux)
-		return (NULL);
-	while (*s1 != '\0')
+	if (!bufaux)
+		bufaux = ft_substr(buf, 0, i);
+	else if (j > 0)
 	{
-		*aux = *s1;
-		aux++;
-		s1++;
+		subbuf = ft_substr(buf, 0, i);
+		aux = bufaux;
+		bufaux = ft_strjoin(aux, subbuf);
+		free(aux);
+		free(subbuf);
+		subbuf = NULL;
 	}
-	*aux = '\0';
-	while (len > 0)
-	{
-		len--;
-		aux--;
-	}
-	return (aux);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
-{
-	char	*newstr;
-	int		size;
-
-	size = ft_strlen(s1) + ft_strlen(s2) + 1; //-----LEAK
-	newstr = malloc(size);
-	if (!newstr)
-		return (NULL);
-	while (*s1 != '\0')
-		*newstr++ = *s1++;
-	while (*s2 != '\0')
-		*newstr++ = *s2++;
-	*newstr = '\0';
-	newstr -= (size - 1);
-	return (newstr);
-}
-
-char	*ft_substr(char *s, unsigned int start, size_t len)
-{
-	char	*aux;
-	size_t	cont;
-
-	cont = 0;
-	if (start < 0 || ft_strlen(s) < start)
-		return (ft_strdup(""));
-	if (len > (ft_strlen(s) - start))
-		aux = malloc(ft_strlen(s) - start + 1); //-----LEAK
-	else
-		aux = malloc(len + 1);
-	if (!aux)
-		return (NULL);
-	s += start;
-	while (len > 0 && *s != '\0')
-	{
-		*(aux++) = *(s++);
-		cont++;
-		len--;
-	}
-	*aux = '\0';
-	while (cont-- > 0)
-		aux--;
-	return (aux);
+	return (bufaux);
 }
 
 char	*get_next_line(int fd)
@@ -107,25 +43,23 @@ char	*get_next_line(int fd)
 
 	i = 0;
 	bufaux = NULL;
-	//----------FUNCION: DEVUELVE BUF------------
-	if (!buf || buf[i] == '\0') //-----LEAK
+	if (!buf || buf[i] == '\0')
 	{
 		if (buf && buf[i] == '\0')
 			free(buf);
-		buf = malloc(BUFFER_SIZE + 1); //----LEAK
+		buf = malloc(BUFFER_SIZE + 1);
 		if (!buf)
 			return (NULL);
 		j = read(fd, buf, BUFFER_SIZE);
 		if (j <= 0 || BUFFER_SIZE == 0)
 		{
-			free(buf); //-----LEAK
+			free(buf);
 			buf = NULL;
 			return (NULL);
 		}
-		buf[j] = '\0'; //-----LEAK
+		buf[j] = '\0';
 	}
-	//----------------------------------------------------
-	else //--------------QUITAR, HAY QUE GLOBALIZAR EL PASO DE DENTRO
+	else
 		j = ft_strlen(buf);
 	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
 	{
@@ -134,7 +68,7 @@ char	*get_next_line(int fd)
 		{
 			if (!bufaux)
 			{
-				bufaux = malloc(BUFFER_SIZE); //-----LEAK
+				bufaux = malloc(BUFFER_SIZE);
 				if (!bufaux)
 				{
 					free(buf);
@@ -143,7 +77,7 @@ char	*get_next_line(int fd)
 				bufaux[0] = '\0';
 			}
 			aux = bufaux;
-			bufaux = ft_strjoin(aux, buf); //-----LEAK
+			bufaux = ft_strjoin(aux, buf);
 			free(aux);
 			free(buf);
 			buf = malloc(BUFFER_SIZE + 1);
@@ -162,22 +96,8 @@ char	*get_next_line(int fd)
 		}
 	}
 	i++;
-	//----------FUNCION: DEVUELVE BUFAUX------------
-	if (!bufaux)
-		bufaux = ft_substr(buf, 0, i);
-	else if (j > 0)
-	{
-		char    *subbuf;
-		subbuf = ft_substr(buf, 0, i);
-		aux = bufaux;
-		bufaux = ft_strjoin(aux, subbuf);
-		free(aux);
-		free(subbuf);
-		subbuf = NULL;
-	}
-	//------------------------------------------------
-	//-------------FUNCION: DEVUELVE AUX----------------
-	int k = 0;
+	bufaux = createbufaux(buf, i, bufaux, j);
+	int k = 0; //-----ESTO TAMBIEN
 	aux = malloc(ft_strlen(buf) + 1);
 	if (!aux)
 	{
@@ -193,7 +113,6 @@ char	*get_next_line(int fd)
 	aux[k]  = '\0';
 	free(buf);
 	buf = NULL;
-	//----------------------------------------(Y QUIZAS PUEDA COGER LO DE ABAJO)
 	buf = ft_substr(aux, i, j - i + 1);
 	free(aux);
 	aux = NULL;
