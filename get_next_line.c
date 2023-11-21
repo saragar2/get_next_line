@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/21 21:28:09 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:50:28 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,26 @@ char	*bufauxfornull(char *bufaux, char *buf)
 	return (bufaux);
 }
 
+char	*buffornull(int fd, char *bufaux)
+{
+	char	*buf;
+	int		j;
+
+	buf = malloc(BUFFER_SIZE + 1);
+	if (!buf)
+		return (NULL);
+	j = read(fd, buf, BUFFER_SIZE);
+	if (j < 0)
+	{
+		free(buf);
+		free(bufaux);
+		buf = NULL;
+		return (NULL);
+	}
+	buf[j] = '\0';
+	return (buf);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*buf;
@@ -114,18 +134,10 @@ char	*get_next_line(int fd)
 		if (buf[i] == '\0')
 		{
 			bufaux = bufauxfornull(bufaux, buf);
-			buf = malloc(BUFFER_SIZE + 1);
+			buf = buffornull(fd, bufaux);
 			if (!buf)
 				return (NULL);
-			j = read(fd, buf, BUFFER_SIZE);
-			if (j < 0)
-			{
-				free(buf);
-				free(bufaux);
-				buf = NULL;
-				return (NULL);
-			}
-			buf[j] = '\0';
+			j = ft_strlen(buf);
 			i = 0;
 		}
 	}
