@@ -6,32 +6,13 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/21 21:50:28 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/22 18:45:38 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <fcntl.h>
 #include <stdio.h>
-
-char	*createbufaux(char *buf, int i, char *bufaux, int j)
-{
-	char	*subbuf;
-	char	*aux;
-
-	if (!bufaux)
-		bufaux = ft_substr(buf, 0, i);
-	else if (j > 0)
-	{
-		subbuf = ft_substr(buf, 0, i);
-		aux = bufaux;
-		bufaux = ft_strjoin(aux, subbuf);
-		free(aux);
-		free(subbuf);
-		subbuf = NULL;
-	}
-	return (bufaux);
-}
 
 char	*newbuf(char *buf, int i, int j)
 {
@@ -60,6 +41,25 @@ char	*newbuf(char *buf, int i, int j)
 	return (buf);
 }
 
+char	*createbufaux(char *buf, int i, char *bufaux, int j)
+{
+	char	*subbuf;
+	char	*aux;
+
+	if (!bufaux)
+		bufaux = ft_substr(buf, 0, i);
+	else if (j > 0)
+	{
+		subbuf = ft_substr(buf, 0, i);
+		aux = bufaux;
+		bufaux = ft_strjoin(aux, subbuf);
+		free(aux);
+		free(subbuf);
+		subbuf = NULL;
+	}
+	return (bufaux);
+}
+
 char	*bufauxfornull(char *bufaux, char *buf)
 {
 	char	*aux;
@@ -86,6 +86,7 @@ char	*buffornull(int fd, char *bufaux)
 	char	*buf;
 	int		j;
 
+	buf = NULL;
 	buf = malloc(BUFFER_SIZE + 1);
 	if (!buf)
 		return (NULL);
@@ -110,28 +111,13 @@ char	*get_next_line(int fd)
 
 	i = 0;
 	bufaux = NULL;
-	if (!buf || buf[i] == '\0')
-	{
-		if (buf && buf[i] == '\0')
-			free(buf);
-		buf = malloc(BUFFER_SIZE + 1);
-		if (!buf)
-			return (NULL);
-		j = read(fd, buf, BUFFER_SIZE);
-		if (j <= 0 || BUFFER_SIZE == 0)
-		{
-			free(buf);
-			buf = NULL;
-			return (NULL);
-		}
-		buf[j] = '\0';
-	}
-	else
-		j = ft_strlen(buf);
+	buf = createbuf(fd, buf, i);
+	if (!buf)
+		return (NULL);
+	j = ft_strlen(buf);
 	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
 	{
-		i++;
-		if (buf[i] == '\0')
+		if (buf[++i] == '\0')
 		{
 			bufaux = bufauxfornull(bufaux, buf);
 			buf = buffornull(fd, bufaux);
@@ -141,10 +127,8 @@ char	*get_next_line(int fd)
 			i = 0;
 		}
 	}
-	i++;
-	bufaux = createbufaux(buf, i, bufaux, j);
-	buf = newbuf(buf, i, j);
-	return (bufaux);
+	bufaux = createbufaux(buf, ++i, bufaux, j);
+	return (buf = newbuf(buf, i, j), bufaux);
 }
 
 /*void leaks()
