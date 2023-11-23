@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 16:50:29 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/22 18:45:38 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/23 18:30:50 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,14 +70,16 @@ char	*bufauxfornull(char *bufaux, char *buf)
 		if (!bufaux)
 		{
 			free(buf);
-			return (NULL);
+			return (buf = NULL, NULL);
 		}
 		bufaux[0] = '\0';
 	}
 	aux = bufaux;
 	bufaux = ft_strjoin(aux, buf);
 	free(aux);
+	aux = NULL;
 	free(buf);
+	buf = NULL;
 	return (bufaux);
 }
 
@@ -86,16 +88,18 @@ char	*buffornull(int fd, char *bufaux)
 	char	*buf;
 	int		j;
 
-	buf = NULL;
+	if (!bufaux)
+		return (NULL);
 	buf = malloc(BUFFER_SIZE + 1);
 	if (!buf)
-		return (NULL);
+		return (free (bufaux), NULL);
 	j = read(fd, buf, BUFFER_SIZE);
 	if (j < 0)
 	{
 		free(buf);
-		free(bufaux);
 		buf = NULL;
+		free(bufaux);
+		bufaux = NULL;
 		return (NULL);
 	}
 	buf[j] = '\0';
@@ -122,12 +126,14 @@ char	*get_next_line(int fd)
 			bufaux = bufauxfornull(bufaux, buf);
 			buf = buffornull(fd, bufaux);
 			if (!buf)
-				return (NULL);
+				return (free(buf), buf = NULL);
 			j = ft_strlen(buf);
 			i = 0;
 		}
 	}
 	bufaux = createbufaux(buf, ++i, bufaux, j);
+	if (!bufaux)
+		return (free(buf), buf = NULL);
 	return (buf = newbuf(buf, i, j), bufaux);
 }
 

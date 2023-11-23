@@ -6,7 +6,7 @@
 /*   By: saragar2 <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 19:37:40 by saragar2          #+#    #+#             */
-/*   Updated: 2023/11/21 18:58:46 by saragar2         ###   ########.fr       */
+/*   Updated: 2023/11/23 18:30:55 by saragar2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ char	*ft_strjoin(char *s1, char *s2)
 	char	*newstr;
 	int		size;
 
+	if (!s2)
+		return (NULL);
 	size = ft_strlen(s1) + ft_strlen(s2) + 1;
 	newstr = malloc(size);
 	if (!newstr)
@@ -93,4 +95,28 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	while (cont-- > 0)
 		aux--;
 	return (aux);
+}
+
+char	*createbuf(int fd, char *buf, int i)
+{
+	int	j;
+
+	j = 0;
+	if (!buf || buf[i] == '\0')
+	{
+		if (buf && buf[i] == '\0')
+			free(buf);
+		buf = malloc(BUFFER_SIZE + 1);
+		if (!buf)
+			return (NULL);
+		j = read(fd, buf, BUFFER_SIZE);
+		if (j <= 0 || BUFFER_SIZE == 0)
+		{
+			free(buf);
+			buf = NULL;
+			return (NULL);
+		}
+		buf[j] = '\0';
+	}
+	return (buf);
 }
