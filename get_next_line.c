@@ -113,12 +113,10 @@ char	*get_next_line(int fd)
 	int			j;
 	char		*bufaux;
 
-	i = 0;
 	bufaux = NULL;
-	buf = createbuf(fd, buf, i);
+	buf = createbuf(fd, buf, &i, &j);
 	if (!buf)
 		return (NULL);
-	j = ft_strlen(buf);
 	while (buf[i] != '\n' && buf[i] != '\0' && j > 0)
 	{
 		if (buf[++i] == '\0')

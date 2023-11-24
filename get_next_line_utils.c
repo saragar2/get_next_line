@@ -97,14 +97,15 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	return (aux);
 }
 
-char	*createbuf(int fd, char *buf, int i)
+char	*createbuf(int fd, char *buf, int *i, int *k)
 {
 	int	j;
 
+	*i = 0;
 	j = 0;
-	if (!buf || buf[i] == '\0')
+	if (!buf || buf[*i] == '\0')
 	{
-		if (buf && buf[i] == '\0')
+		if (buf && buf[*i] == '\0')
 			free(buf);
 		buf = malloc(BUFFER_SIZE + 1);
 		if (!buf)
@@ -118,5 +119,7 @@ char	*createbuf(int fd, char *buf, int i)
 		}
 		buf[j] = '\0';
 	}
+	*k = ft_strlen(buf);
+	*i = 0;
 	return (buf);
 }
