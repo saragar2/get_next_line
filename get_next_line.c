@@ -66,7 +66,7 @@ char	*bufauxfornull(char *bufaux, char *buf)
 
 	if (!bufaux)
 	{
-		bufaux = malloc(BUFFER_SIZE);
+		bufaux = malloc(1);
 		if (!bufaux)
 		{
 			free(buf);
@@ -137,42 +137,42 @@ char	*get_next_line(int fd)
 
 /*void leaks()
 {
-	system("leaks -q a.out");
+ 	system("leaks -q a.out");
 }
 
 int main ()
 {
-	char	*s;
-	int fd = open("multiple_line_with_nl.txt", O_RDONLY);
+ 	char	*s;
+ 	int fd = open("multiple_line_with_nl.txt", O_RDONLY);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(42);
+ 	printf("%s", s);
+ 	free (s);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(fd);
+ 	printf("%s", s);
+ 	free (s);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(fd);
+ 	printf("%s", s);
+ 	free (s);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(fd);
+ 	printf("%s", s);
+ 	free (s);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(fd);
+ 	printf("%s", s);
+ 	free (s);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(fd);
+ 	printf("%s", s);
+ 	free (s);
  
-	s = get_next_line(fd);
-	printf("%s", s);
-	free (s);
+ 	s = get_next_line(fd);
+ 	printf("%s", s);
+ 	free (s);
  
-	atexit(leaks);
-	return (0);
+ 	atexit(leaks);
+ 	return (0);
 }*/
